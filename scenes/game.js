@@ -2,25 +2,52 @@ import { createShip } from "../entities/ship.js"
 import { createBullet } from "../entities/bullet.js"
 import { createAsteroid } from "../entities/asteroid.js"
 
-const ASTEROIDS_TO_CLEAR = 8    // destroy this many to advance to the next level
-const BASE_SPAWN_INTERVAL = 1.5 // seconds between spawns on level 1
+const ASTEROID_COUNT_BASE  = 6
+const ASTEROID_SPAWN_DELAY = 2.0
+const ASTEROID_START_SCALE = 2.0
+const ASTEROID_MIN_SCALE   = 0.5
+const ASTEROID_SCALE_MULT  = 0.5
+const ASTEROID_SPEED_MULT  = 1.5
+const ASTEROID_MIN_SPREAD  = 15
+const ASTEROID_MAX_SPREAD  = 45
+
+const START_LIVES = 3
 
 export function createGameScene() {
-    scene("game", (level = 1) => {
+    scene("game", (level = 1, lives = START_LIVES, score = 0) => {
         const [ship, flame] = createShip()
-        let lives = 3
 
-        const asteroidsToSpawn = level + 5
-        const startingScale = 2
+        const asteroidsToSpawn = level + ASTEROID_COUNT_BASE - 1
+        const startingScale = ASTEROID_START_SCALE
 
-        for (let i = 0; i < asteroidsToSpawn; i++) {
-            createAsteroid(startingScale)
-        }
+        wait(ASTEROID_SPAWN_DELAY, () => {
+            for (let i = 0; i < asteroidsToSpawn; i++) {
+                createAsteroid(startingScale)
+            }
+        })
 
-        add([
+        const levelLabel = add([
             text(`Level ${level}`, { size: 20 }),
-            pos(12, 12),
-            color(WHITE)
+            pos(20, 20),
+            anchor("topleft"),
+            color(WHITE),
+            fixed(),
+        ])
+
+        const scoreLabel = add([
+            text(score.toString(), { size: 40 }),
+            pos(width() / 2, 20),
+            anchor("top"),
+            color(WHITE),
+            fixed(),
+        ])
+
+        const livesLabel = add([
+            text(`Lives ${lives}`, { size: 20 }),
+            pos(width() - 20, 20),
+            anchor("topright"),
+            color(WHITE),
+            fixed(),
         ])
 
         onKeyDown("left", () => {
@@ -74,17 +101,20 @@ export function createGameScene() {
             destroy(bullet)
             destroy(asteroid)
 
-            const nextScale = asteroid.scaleFactor / 2;
+            const asteroidScore = Math.floor(5 / asteroid.scaleFactor) * 10
+            score += asteroidScore
+            scoreLabel.text = score.toString()
 
-            if (nextScale >= 0.5) {
+            const nextScale = asteroid.scaleFactor * ASTEROID_SCALE_MULT;
+
+            if (nextScale >= ASTEROID_MIN_SCALE) {
                 const parentVelocity = asteroid.vel
                 const parentSpeed = parentVelocity.len()
                 const parentAngle = parentVelocity.angle()
 
-                const speedMultiplier = 1.5
-                const childSpeed = parentSpeed * speedMultiplier
+                const childSpeed = parentSpeed * ASTEROID_SPEED_MULT
 
-                const deflectionAngle = rand(15,45)
+                const deflectionAngle = rand(ASTEROID_MIN_SPREAD, ASTEROID_MAX_SPREAD)
                 const leftAngle = parentAngle - deflectionAngle
                 const rightAngle = parentAngle + deflectionAngle
 
@@ -100,6 +130,7 @@ export function createGameScene() {
             destroy(asteroid)
             shake(10)
             lives -= 1
+            livesLabel.text = `Lives: ${lives}`
 
             if (lives == 0) {
                 go("gameOver")
@@ -109,7 +140,7 @@ export function createGameScene() {
         onDestroy("asteroid", () => {
             wait(0, () => {
                 if (get("asteroid").length === 0) {
-                    go("game", level + 1);
+                    go("game", level + 1, lives + 1, score);
                 }
             });
         });
