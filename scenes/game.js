@@ -132,6 +132,8 @@ export function createGameScene() {
             lives -= 1
             livesLabel.text = `Lives: ${lives}`
 
+            addKaboom(ship.pos)
+
             if (lives == 0) {
                 go("gameOver", level, score)
             }
