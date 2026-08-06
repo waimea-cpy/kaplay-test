@@ -5,18 +5,23 @@ const SHIP_DRAG = 0.98          // velocity multiplier each frame
 export function createShip() {
     const points = [
         vec2(20, 0),
-        vec2(-14, 14),
-        vec2(-14, -14),
+        vec2(-14, 12),
+        vec2(-10, 10),
+        vec2(-10, -10),
+        vec2(-14, -12),
     ]
 
     return add([
         pos(center()),
         rotate(-90),                            // Point up to start
         anchor("center"),
-        polygon(points, { fill: false }),       // outline only, no fill
-        area({ shape: new Polygon(points) }),   // matching collision shape
-        outline(2, WHITE),
+
+        polygon(points, { fill: false }),
+        area(),
+        outline(2, WHITE, 1.0, "round"),
+
         "ship",
+
         {
             vel: vec2(0, 0),
             turnSpeed: SHIP_TURN_SPEED,
