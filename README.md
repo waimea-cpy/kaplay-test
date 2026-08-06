@@ -2,7 +2,10 @@
 
 A simple Asteroids game using [Kaplay](https://kaplayjs.com/docs/guides/)
 
+[Play it here](https://waimea-cpy.github.io/kaplay-test/)
+
 ![Game play](asteroids.png)
+
 
 ## Project Structure
 
@@ -32,8 +35,11 @@ Looking at how best to architect the project in terms of files / folders / separ
     └── fonts/
 ```
 
-This works well for separation of game parts in a logical, but not overwhelming way:
+This project structure works well for separation of game parts in a logical, but not overwhelming way:
 - **Entities** are defined, but just as data / info. Behaviour is within scenes
 - **Scenes** create required entities and handle game inputs / collisions / etc.
 
 
+## Game Hosting
+
+The structure also works well for zipping (the **contents**, not the folder) to upload to **itch.io**, and for simple hosting on GH Pages

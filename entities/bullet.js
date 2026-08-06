@@ -1,5 +1,5 @@
-const BULLET_SPEED = 600
-const BULLET_LIFE = 0.75   // seconds before a bullet disappears on its own
+const BULLET_SPEED = 800
+const BULLET_LIFE = 1.00   // seconds before a bullet disappears on its own
 
 export function createBullet(ship) {
     const facing = Vec2.fromAngle(ship.angle)
