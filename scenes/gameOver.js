@@ -16,7 +16,7 @@ export function createGameOverScene() {
 
         add([
             text("Press R to restart", { size: 24 }),
-            pos(center().x, center().y + 80),
+            pos(center().x, center().y + 100),
             anchor("center"),
             color(WHITE),
         ])
