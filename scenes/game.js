@@ -7,7 +7,7 @@ const BASE_SPAWN_INTERVAL = 1.5 // seconds between spawns on level 1
 
 export function createGameScene() {
     scene("game", (level = 1) => {
-        const ship = createShip()
+        const [ship, flame] = createShip()
         let lives = 3
 
         const asteroidsToSpawn = level + 5
@@ -34,6 +34,11 @@ export function createGameScene() {
         onKeyDown("up", () => {
             const facing = Vec2.fromAngle(ship.angle)
             ship.vel = ship.vel.add(facing.scale(ship.thrust * dt()))
+            flame.opacity = 1
+        })
+
+        onKeyRelease("up", () => {
+            flame.opacity = 0
         })
 
         onKeyPress("space", () => {

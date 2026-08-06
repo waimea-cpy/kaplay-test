@@ -3,7 +3,7 @@ const SHIP_THRUST = 800         // acceleration while holding "up"
 const SHIP_DRAG = 0.98          // velocity multiplier each frame
 
 export function createShip() {
-    const points = [
+    const shipPoints = [
         vec2(20, 0),
         vec2(-14, 12),
         vec2(-10, 10),
@@ -11,12 +11,18 @@ export function createShip() {
         vec2(-14, -12),
     ]
 
-    return add([
+    const flamePoints = [
+        vec2(-11, 4),
+        vec2(-20 , 0),
+        vec2(-11, -4),
+    ]
+
+    const ship = add([
         pos(center()),
         rotate(-90),                            // Point up to start
         anchor("center"),
 
-        polygon(points, { fill: false }),
+        polygon(shipPoints, { fill: false }),
         area(),
         outline(2, WHITE, 1.0, "round"),
 
@@ -29,5 +35,14 @@ export function createShip() {
             drag: SHIP_DRAG,
         },
     ])
+
+    const flame = ship.add([
+        pos(0, 0),
+        polygon(flamePoints, { fill: false }),
+        outline(2, RED, 1.0, "round"),
+        opacity(0),
+    ])
+
+    return [ship, flame]
 }
 
