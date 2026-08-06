@@ -133,7 +133,7 @@ export function createGameScene() {
             livesLabel.text = `Lives: ${lives}`
 
             if (lives == 0) {
-                go("gameOver")
+                go("gameOver", level, score)
             }
         })
 
