@@ -1,4 +1,4 @@
-export function createGameOverScene() {
+export function createGameOverScene(isMobile = false) {
     scene("gameOver", (level, score) => {
         add([
             text("GAME OVER", { size: 48 }),
@@ -14,15 +14,16 @@ export function createGameOverScene() {
             color(WHITE),
         ])
 
-        add([
-            text("Press R to restart", { size: 24 }),
-            pos(center().x, center().y + 100),
-            anchor("center"),
-            color(WHITE),
-        ])
+        wait(3.0, () => {
+            add([
+                text(isMobile ? "Touch screen to restart" : "Press any key to restart", { size: 25 }),
+                pos(center().x, center().y + 100),
+                anchor("center"),
+                color(WHITE),
+            ])
 
-        onKeyPress("r", () => {
-            go("game")
+            onTouchStart(() => go("game"))
+            onKeyPress(() => go("game"))
         })
     })
 }

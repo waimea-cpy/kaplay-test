@@ -1,5 +1,5 @@
 const SHIP_TURN_SPEED = 200     // degrees per second
-const SHIP_THRUST = 800         // acceleration while holding "up"
+const SHIP_THRUST = 600         // acceleration while holding "up"
 const SHIP_DRAG = 0.98          // velocity multiplier each frame
 
 export function createShip() {

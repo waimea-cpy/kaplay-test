@@ -13,7 +13,7 @@ const ASTEROID_MAX_SPREAD  = 45
 
 const START_LIVES = 3
 
-export function createGameScene() {
+export function createGameScene(isMobile = false) {
     scene("game", (level = 1, lives = START_LIVES, score = 0) => {
         const [ship, flame] = createShip()
 
@@ -35,7 +35,7 @@ export function createGameScene() {
         ])
 
         const scoreLabel = add([
-            text(score.toString(), { size: 40 }),
+            text(score.toString(), { size: 30 }),
             pos(width() / 2, 20),
             anchor("top"),
             color(WHITE),
@@ -50,33 +50,119 @@ export function createGameScene() {
             fixed(),
         ])
 
-        onKeyDown("left", () => {
-            ship.angle -= ship.turnSpeed * dt()
-        })
+        const turnLeft  = () => { ship.angle -= ship.turnSpeed * dt() }
+        const turnRight = () => { ship.angle += ship.turnSpeed * dt() }
 
-        onKeyDown("right", () => {
-            ship.angle += ship.turnSpeed * dt()
-        })
-
-        onKeyDown("up", () => {
+        const thrustOn =  () => {
             const facing = Vec2.fromAngle(ship.angle)
             ship.vel = ship.vel.add(facing.scale(ship.thrust * dt()))
             flame.opacity = 1
-        })
+        }
+        const thrustOff = () => { flame.opacity = 0 }
 
-        onKeyRelease("up", () => {
-            flame.opacity = 0
-        })
+        const fire = () => { createBullet(ship) }
 
-        onKeyPress("space", () => {
-            createBullet(ship)
+        let leftButton, rightButton, upButton, fireButton
+        let isTouchingButton = () => false
+
+        if (isMobile) {
+            const controlSize = (height() + width()) / 20
+            const inset = 20
+
+            fireButton = add([
+                rect(controlSize * 1.5, controlSize * 1.5, { radius: 30 }),
+                pos(width() - (inset + controlSize) * 1.5, height() - (inset + controlSize) * 1.5),
+                area(),
+                color(WHITE),
+                opacity(0.1),
+                fixed(),
+            ])
+            leftButton = add([
+                rect(controlSize, controlSize, { radius: 20 }),
+                pos(inset, height() - inset - controlSize),
+                area(),
+                color(WHITE),
+                opacity(0.1),
+                fixed(),
+            ])
+            rightButton = add([
+                rect(controlSize, controlSize, { radius: 20 }),
+                pos(inset + controlSize * 2, height() - inset - controlSize),
+                area(),
+                color(WHITE),
+                opacity(0.1),
+                fixed(),
+            ])
+            upButton = add([
+                rect(controlSize, controlSize, { radius: 20 }),
+                pos(inset + controlSize, height() - inset - controlSize * 2),
+                area(),
+                color(WHITE),
+                opacity(0.1),
+                fixed(),
+            ])
+
+            upButton.add([
+                text("△", { size: 50 }),
+                pos(controlSize * 0.5, controlSize * 0.5),
+                anchor("center"),
+                opacity(0.2),
+            ])
+            leftButton.add([
+                text("◁", { size: 50 }),
+                pos(controlSize * 0.5, controlSize * 0.5),
+                anchor("center"),
+                opacity(0.2),
+            ])
+            rightButton.add([
+                text("▷", { size: 50 }),
+                pos(controlSize * 0.5, controlSize * 0.5),
+                anchor("center"),
+                opacity(0.2),
+            ])
+            fireButton.add([
+                text("⌖", { size: 50 }),
+                pos(controlSize * 0.75, controlSize * 0.75),
+                anchor("center"),
+                opacity(0.2),
+            ])
+
+            fireButton.onClick(fire)
+
+            const activeTouches = new Map()
+
+            onTouchStart((touchPos, touch) => activeTouches.set(touch.identifier, touchPos))
+            onTouchMove((touchPos, touch)  => activeTouches.set(touch.identifier, touchPos))
+            onTouchEnd((touchPos, touch)   => activeTouches.delete(touch.identifier))
+
+            isTouchingButton = (button) => {
+                if (!button) return false
+
+                for (const touchPos of activeTouches.values()) {
+                    if (button.hasPoint(touchPos)) return true
+                }
+                return false
+            }
+        }
+
+        onKeyPress("z", fire)
+
+        onUpdate(() => {
+            const turningLeft  = isKeyDown("left")  || isTouchingButton(leftButton)
+            const turningRight = isKeyDown("right") || isTouchingButton(rightButton)
+            const thrusting    = isKeyDown("up")    || isTouchingButton(upButton)
+
+            if (turningLeft) turnLeft()
+            if (turningRight) turnRight()
+
+            if (thrusting) thrustOn()
+            else thrustOff()
         })
 
         onUpdate(() => {
             ship.pos = ship.pos.add(ship.vel.scale(dt()))
             ship.vel = ship.vel.scale(ship.drag)
 
-            // Screen wrap - the ship stays in play forever
             if (ship.pos.x < 0)        ship.pos.x = width()
             if (ship.pos.x > width())  ship.pos.x = 0
             if (ship.pos.y < 0)        ship.pos.y = height()
@@ -105,7 +191,7 @@ export function createGameScene() {
             score += asteroidScore
             scoreLabel.text = score.toString()
 
-            const nextScale = asteroid.scaleFactor * ASTEROID_SCALE_MULT;
+            const nextScale = asteroid.scaleFactor * ASTEROID_SCALE_MULT
 
             if (nextScale >= ASTEROID_MIN_SCALE) {
                 const parentVelocity = asteroid.vel
@@ -135,17 +221,20 @@ export function createGameScene() {
             addKaboom(ship.pos)
 
             if (lives == 0) {
-                go("gameOver", level, score)
+                destroy(ship)
+                wait(2.0, () => {
+                    go("gameOver", level, score)
+                })
             }
         })
 
         onDestroy("asteroid", () => {
             wait(0, () => {
                 if (get("asteroid").length === 0) {
-                    go("game", level + 1, lives + 1, score);
+                    go("game", level + 1, lives + 1, score)
                 }
-            });
-        });
+            })
+        })
 
     })
 }
