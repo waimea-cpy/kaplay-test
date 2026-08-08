@@ -231,7 +231,9 @@ export function createGameScene(isMobile = false) {
         onDestroy("asteroid", () => {
             wait(0, () => {
                 if (get("asteroid").length === 0) {
-                    go("game", level + 1, lives + 1, score)
+                    wait(2.0, () => {
+                        go("game", level + 1, lives + 1, score)
+                    })
                 }
             })
         })
