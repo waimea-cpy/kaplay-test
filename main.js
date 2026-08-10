@@ -8,7 +8,7 @@ kaplay({
     background: [0, 0, 0],
 })
 
-const isMobile = isTouchscreen()
+const isMobile = isTouchscreen() && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
 
 createSplashScene(isMobile)
 createGameScene(isMobile)

@@ -121,7 +121,7 @@ export function createGameScene(isMobile = false) {
                 opacity(0.2),
             ])
             fireButton.add([
-                text("⌖", { size: 50 }),
+                text("⌖", { size: 100 }),
                 pos(controlSize * 0.75, controlSize * 0.75),
                 anchor("center"),
                 opacity(0.2),
